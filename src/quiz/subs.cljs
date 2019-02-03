@@ -7,6 +7,6 @@
    (:name db)))
 
 (re-frame/reg-sub
- :fretboard/dots
+ ::dots
  (fn [db]
-   (:fretboard/dots db)))
+   (:dots db)))

@@ -1,7 +1,8 @@
 (ns quiz.fretboard
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame]
-            ["fretboard-diagram" :as fd]))
+            ["fretboard-diagram" :as fd]
+            [quiz.subs :as subs]))
 
 (defn remove-children [node]
   (doseq [child (array-seq (.-childNodes node))]
@@ -31,7 +32,7 @@
         (make-fretboard-diagram id (:dots (reagent/props this))))})))
 
 (defn fretboard-outer []
-  (let [dots (re-frame/subscribe [:fretboard/dots])]
+  (let [dots (re-frame/subscribe [::subs/dots])]
     (fn []
       [:div {:class "fretboard-outer"}
        [fretboard-inner {:dots @dots}]])))

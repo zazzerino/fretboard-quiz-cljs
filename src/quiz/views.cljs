@@ -4,7 +4,7 @@
             [quiz.fretboard :as fretboard]))
 
 (defn dot-display []
-  (let [dots (re-frame/subscribe [:fretboard/dots])]
+  (let [dots (re-frame/subscribe [::subs/dots])]
     [:div.dot-display
      [:p (str @dots)]]))
 
