@@ -16,3 +16,10 @@
  :fretboard/remove-dot
  (fn [db [_ dot]]
    (assoc db :fretboard/dots (vec (remove #(= % dot) (:fretboard/dots db))))))
+
+(re-frame/reg-event-fx
+ :fretboard/clicked
+ (fn [{:keys [db]} [_ dot]]
+   {:dispatch (if (some #{dot} (:fretboard/dots db))
+                [:fretboard/remove-dot dot]
+                [:fretboard/add-dot dot])}))

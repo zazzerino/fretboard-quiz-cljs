@@ -9,8 +9,14 @@
 
 (defn make-fretboard-diagram [parentId dots]
   (remove-children (.getElementById js/document parentId))
-  (fd/FretboardDiagram. (clj->js {:parentId parentId
-                                  :dots dots})))
+  (fd/FretboardDiagram.
+   (clj->js {:parentId parentId
+             :isUpdateable true
+             :onClickCallback
+             (fn [string fret]
+               (re-frame/dispatch [:fretboard/clicked
+                                   {:string string :fret fret}]))
+             :dots dots})))
 
 (defn fretboard-inner []
   (let [id "fd-node"]
