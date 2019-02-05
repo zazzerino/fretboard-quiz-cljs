@@ -10,3 +10,8 @@
  ::dots
  (fn [db]
    (:dots db)))
+
+(re-frame/reg-sub
+ ::note-to-id
+ (fn [db]
+   (:note-to-id db)))

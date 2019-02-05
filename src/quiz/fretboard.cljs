@@ -2,16 +2,13 @@
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame]
             ["fretboard-diagram" :as fd]
-            [quiz.subs :as subs]))
+            [quiz.subs :as subs]
+            [quiz.utils :as utils]))
 
-(defn remove-children [node]
-  (doseq [child (array-seq (.-childNodes node))]
-    (.removeChild node child)))
-
-(defn make-fretboard-diagram [parentId dots]
-  (remove-children (.getElementById js/document parentId))
+(defn make-fretboard-diagram [parent-id dots]
+  (utils/remove-children (.getElementById js/document parent-id))
   (fd/FretboardDiagram.
-   (clj->js {:parentId parentId
+   (clj->js {:parentId parent-id
              :isUpdateable true
              :onClickCallback
              (fn [string fret]

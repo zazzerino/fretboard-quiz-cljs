@@ -5,7 +5,7 @@
 
 (defn check-and-throw [spec db]
   (when-not (s/valid? spec db)
-    (throw (ex-info (str "speck check failed: " (s/explain spec db)) {}))))
+    (throw (ex-info (str "spec check failed: " (s/explain spec db)) {}))))
 
 (def check-spec-interceptor (re-frame/after
                              (partial check-and-throw :quiz.db/db)))
@@ -35,3 +35,9 @@
    {:dispatch (if (some #{dot} (:dots db))
                 [:fretboard/remove-dot dot]
                 [:fretboard/add-dot dot])}))
+
+(re-frame/reg-event-db
+ ::set-note-to-id
+ [check-spec-interceptor]
+ (fn [db [_ new-note]]
+   (assoc db :note-to-id new-note)))
