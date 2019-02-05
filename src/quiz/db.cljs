@@ -15,5 +15,5 @@
 (def default-db
   {:name "quiz"
    :note-to-id "Cbb4"
-   :dots [{:string 5 :fret 3}
-          {:string 1 :fret 0}]})
+   :dots #{{:string 5 :fret 3}
+           {:string 1 :fret 0}}})

@@ -7,8 +7,8 @@
   (when-not (s/valid? spec db)
     (throw (ex-info (str "spec check failed: " (s/explain spec db)) {}))))
 
-(def check-spec-interceptor (re-frame/after
-                             (partial check-and-throw :quiz.db/db)))
+(def check-spec-interceptor
+  (re-frame/after (partial check-and-throw :quiz.db/db)))
 
 (re-frame/reg-event-db
  ::initialize-db
@@ -26,7 +26,7 @@
  :fretboard/remove-dot
  [check-spec-interceptor]
  (fn [db [_ dot]]
-   (assoc db :dots (vec (remove #(= % dot) (:dots db))))))
+   (assoc db :dots (vec (remove (partial = dot) (:dots db))))))
 
 (re-frame/reg-event-fx
  :fretboard/clicked

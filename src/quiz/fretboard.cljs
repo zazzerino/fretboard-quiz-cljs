@@ -17,16 +17,14 @@
              :dots dots})))
 
 (defn fretboard-inner []
-  (let [id "fd-node"]
+  (let [id "fd-node"
+        draw (fn [this]
+               (make-fretboard-diagram id (:dots (reagent/props this))))]
     (reagent/create-class
      {:display-name "fretboard-inner"
       :reagent-render (fn [] [:div {:id id}])
-      :component-did-mount
-      (fn [this]
-        (make-fretboard-diagram id (:dots (reagent/props this))))
-      :component-did-update
-      (fn [this]
-        (make-fretboard-diagram id (:dots (reagent/props this))))})))
+      :component-did-mount draw
+      :component-did-update draw})))
 
 (defn fretboard-outer []
   (let [dots (re-frame/subscribe [::subs/dots])]
