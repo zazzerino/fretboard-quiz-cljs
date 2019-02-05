@@ -8,7 +8,7 @@
     (throw (ex-info (str "spec check failed: " (s/explain spec db)) {}))))
 
 (def check-spec-interceptor
-  (re-frame/after (partial check-and-throw :quiz.db/db)))
+  (re-frame/after (partial check-and-throw :quiz.spec/db)))
 
 (re-frame/reg-event-db
  ::initialize-db

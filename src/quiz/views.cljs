@@ -7,7 +7,7 @@
 (defn note-to-id-display []
   (let [note (re-frame/subscribe [::subs/note-to-id])]
     [:div.note-to-id-display
-     [:p (str "note to id: " @note)]]))
+     [:p (str "note: " @note)]]))
 
 (defn dot-display []
   (let [dots (re-frame/subscribe [::subs/dots])]

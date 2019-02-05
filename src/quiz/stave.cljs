@@ -29,7 +29,7 @@
                               (clj->js {:keys [(add-slash notename)]
                                         :duration "w"}))
                      (.setExtraLeftPx (/ (.-width stave) 3.8)))
-        accidental (:accidental (theory/parse-note notename))]
+        accidental (:accidental (theory/parse-notename notename))]
     (if accidental
       (.addAccidental stave-note 0 (new (.-Accidental vf) accidental)))
     (.FormatAndDraw (.-Formatter vf) context stave #js [stave-note])))

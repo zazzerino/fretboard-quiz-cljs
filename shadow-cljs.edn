@@ -1,5 +1,6 @@
 {:source-paths ["src"]
  :dependencies [[cider/cider-nrepl "0.20.0"]
+                [org.clojure/test.check "0.9.0"]
                 [reagent "0.8.1"]
                 [re-frame "0.10.6"]]
  :builds {:app {:target :browser
