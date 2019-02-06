@@ -12,6 +12,9 @@
    (:dots db)))
 
 (re-frame/reg-sub
- ::note-to-id
+ ::note-to-guess
  (fn [db]
-   (:note-to-id db)))
+   (:note-to-guess db)))
+
+;; (re-frame/reg-sub
+;;  ::)

@@ -9,12 +9,11 @@
   (utils/remove-children (.getElementById js/document parent-id))
   (fd/FretboardDiagram.
    (clj->js {:parentId parent-id
-             :isUpdateable true
+             :dots dots
              :onClickCallback
              (fn [string fret]
                (re-frame/dispatch [:fretboard/clicked
-                                   {:string string :fret fret}]))
-             :dots dots})))
+                                   {:string string :fret fret}]))})))
 
 (defn fretboard-inner []
   (let [id "fd-node"

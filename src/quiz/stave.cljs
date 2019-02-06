@@ -24,12 +24,12 @@
 (defn add-slash [notename]
   (clojure.string/replace notename #"(\d)" "/$1"))
 
-(defn draw-note [context stave notename]
+(defn draw-note [context stave note-name]
   (let [stave-note (doto (new (.-StaveNote vf)
-                              (clj->js {:keys [(add-slash notename)]
+                              (clj->js {:keys [(add-slash note-name)]
                                         :duration "w"}))
                      (.setExtraLeftPx (/ (.-width stave) 3.8)))
-        accidental (:accidental (theory/parse-notename notename))]
+        accidental (:accidental (theory/parse-notename note-name))]
     (if accidental
       (.addAccidental stave-note 0 (new (.-Accidental vf) accidental)))
     (.FormatAndDraw (.-Formatter vf) context stave #js [stave-note])))
@@ -49,7 +49,7 @@
       :component-did-update draw})))
 
 (defn stave-outer []
-  (let [note (re-frame/subscribe [::subs/note-to-id])]
+  (let [note (re-frame/subscribe [::subs/note-to-guess])]
     (fn []
       [:div {:class "stave-outer"}
        [stave-inner {:note @note}]])))

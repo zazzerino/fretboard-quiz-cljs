@@ -1,14 +1,15 @@
 (ns quiz.events
   (:require [re-frame.core :as re-frame]
             [clojure.spec.alpha :as s]
-            [quiz.db :as db]))
+            [quiz.db :as db]
+            [quiz.theory :as theory]))
 
 (defn check-and-throw [spec db]
   (when-not (s/valid? spec db)
-    (throw (ex-info (str "spec check failed: " (s/explain spec db)) {}))))
+    (throw (ex-info "spec check failed: " (s/explain-data spec db)))))
 
 (def check-spec-interceptor
-  (re-frame/after (partial check-and-throw :quiz.spec/db)))
+  (re-frame/after (partial check-and-throw ::db/db)))
 
 (re-frame/reg-event-db
  ::initialize-db
@@ -20,13 +21,15 @@
  :fretboard/add-dot
  [check-spec-interceptor]
  (fn [db [_ dot]]
-   (assoc db :dots (conj (:dots db) dot))))
+   (if (< (count (:dots db)) (:max-notes db))
+     (assoc db :dots (conj (:dots db) dot))
+     db)))
 
 (re-frame/reg-event-db
  :fretboard/remove-dot
  [check-spec-interceptor]
  (fn [db [_ dot]]
-   (assoc db :dots (vec (remove (partial = dot) (:dots db))))))
+   (assoc db :dots (set (remove (partial = dot) (:dots db))))))
 
 (re-frame/reg-event-fx
  :fretboard/clicked
@@ -34,10 +37,16 @@
  (fn [{:keys [db]} [_ dot]]
    {:dispatch (if (some #{dot} (:dots db))
                 [:fretboard/remove-dot dot]
-                [:fretboard/add-dot dot])}))
+                [:fretboard/add-dot dot])
+    :set-fretboard-note dot}))
 
 (re-frame/reg-event-db
- ::set-note-to-id
+ ::set-note-to-guess
  [check-spec-interceptor]
  (fn [db [_ new-note]]
-   (assoc db :note-to-id new-note)))
+   (assoc db :note-to-guess new-note)))
+
+(re-frame/reg-fx
+ :set-guess
+ (fn [dot]
+   #_(println (theory/note-at dot))))
