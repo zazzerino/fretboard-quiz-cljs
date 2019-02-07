@@ -4,21 +4,14 @@
             [quiz.fretboard :as fretboard]
             [quiz.stave :as stave]))
 
-(defn note-to-guess-display []
-  (let [note (re-frame/subscribe [::subs/note-to-guess])]
+(defn guess-info []
+  (let [correct-guess? (re-frame/subscribe [::subs/correct-guess?])]
     [:div
-     [:p (str "note: " @note)]]))
-
-(defn dot-display []
-  (let [dots (re-frame/subscribe [::subs/dots])]
-    [:div
-     [:p (str @dots)]]))
+     [:p (str @correct-guess?)]]))
 
 (defn main-panel []
   (let [name (re-frame/subscribe [::subs/name])]
     [:div.main-panel
-     [note-to-guess-display]
+     [guess-info]
      [stave/stave-outer]
-     [fretboard/fretboard-outer]
-     [dot-display]
-     ]))
+     [fretboard/fretboard-outer]]))

@@ -6,7 +6,7 @@
 
 (defn check-and-throw [spec db]
   (when-not (s/valid? spec db)
-    (throw (ex-info "spec check failed: " (s/explain-data spec db)))))
+    (throw (ex-info (str "spec check failed: " (s/explain-str spec db)) {}))))
 
 (def check-spec-interceptor
   (re-frame/after (partial check-and-throw ::db/db)))
@@ -17,15 +17,24 @@
  (fn [_ _]
    db/default-db))
 
-(re-frame/reg-event-db
+#_(re-frame/reg-event-db
  :fretboard/add-dot
  [check-spec-interceptor]
  (fn [db [_ dot]]
-   (if (< (count (:dots db)) (:max-notes db))
-     (assoc db :dots (conj (:dots db) dot))
+   (if (< (count (:dots db))
+          (:max-notes db))
+     (assoc db
+            :dots (conj (:dots db) dot)
+            :user-guess (theory/note-at dot))
      db)))
 
 (re-frame/reg-event-db
+ :fretboard/add-dot
+ [check-spec-interceptor]
+ (fn [db [_ location]]
+   (assoc db :clicked-location location)))
+
+#_(re-frame/reg-event-db
  :fretboard/remove-dot
  [check-spec-interceptor]
  (fn [db [_ dot]]
@@ -34,11 +43,8 @@
 (re-frame/reg-event-fx
  :fretboard/clicked
  [check-spec-interceptor]
- (fn [{:keys [db]} [_ dot]]
-   {:dispatch (if (some #{dot} (:dots db))
-                [:fretboard/remove-dot dot]
-                [:fretboard/add-dot dot])
-    :set-fretboard-note dot}))
+ (fn [{:keys [db]} [_ location]]
+   {:dispatch [:fretboard/add-dot location]}))
 
 (re-frame/reg-event-db
  ::set-note-to-guess
@@ -46,7 +52,8 @@
  (fn [db [_ new-note]]
    (assoc db :note-to-guess new-note)))
 
-(re-frame/reg-fx
- :set-guess
- (fn [dot]
-   #_(println (theory/note-at dot))))
+(re-frame/reg-event-db
+ ::user-guessed
+ [check-spec-interceptor]
+ (fn [db [_ guess]]
+   (assoc db :user-guess guess)))

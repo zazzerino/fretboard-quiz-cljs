@@ -4,5 +4,10 @@
         "react": "^16.7.0",
         "react-dom": "^16.7.0",
         "vexflow": "^1.2.87"
+    },
+    "devDependencies": {
+        "highlight.js": "^9.14.2",
+        "react-flip-move": "^3.0.3",
+        "react-highlight.js": "^1.0.7"
     }
 }

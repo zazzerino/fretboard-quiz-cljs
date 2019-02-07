@@ -1,5 +1,6 @@
 (ns quiz.subs
-  (:require [re-frame.core :as re-frame]))
+  (:require [re-frame.core :as re-frame]
+            [quiz.theory :as theory]))
 
 (re-frame/reg-sub
  ::name
@@ -7,14 +8,17 @@
    (:name db)))
 
 (re-frame/reg-sub
- ::dots
+ ::clicked-location
  (fn [db]
-   (:dots db)))
+   (:clicked-location db)))
 
 (re-frame/reg-sub
  ::note-to-guess
  (fn [db]
    (:note-to-guess db)))
 
-;; (re-frame/reg-sub
-;;  ::)
+(re-frame/reg-sub
+ ::correct-guess?
+ (fn [db]
+   (= (:note-to-guess db)
+      (theory/note-at (:clicked-location db)))))

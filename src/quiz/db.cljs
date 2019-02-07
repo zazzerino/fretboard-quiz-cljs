@@ -3,16 +3,12 @@
             [quiz.theory :as theory]))
 
 (s/def ::name string?)
-(s/def ::dots (s/coll-of ::theory/fretboard-location :into #{}))
+(s/def ::clicked-location ::theory/fretboard-location)
 (s/def ::note-to-guess ::theory/notename)
-(s/def ::max-notes int?)
-(s/def ::user-guess ::theory/notename)
 
-(s/def ::db (s/keys :req-un [::name ::note-to-guess ::dots]
-                    :opt [::max-notes ::user-guess]))
+(s/def ::db (s/keys :req-un [::name ::note-to-guess]
+                    :opt-un [::clicked-location]))
 
 (def default-db
-  {:name "quiz"
-   :note-to-guess (theory/random-notename)
-   :dots #{}
-   :max-notes 1})
+  {:name "fretboard-quiz"
+   :note-to-guess (theory/random-notename)})
