@@ -42,13 +42,13 @@
  (fn [{:keys [db]} [_ location]]
    (let [correct-guess? (theory/note= (:note-to-guess db)
                                       (theory/note-at location))]
-     {:db (assoc db
-                 :user-score (if correct-guess?
-                               (inc (:user-score db))
-                               (dec (:user-score db)))
-                 :note-to-guess (if correct-guess?
-                                  (theory/random-notename)
-                                  (:note-to-guess db)))
+     {:db (merge db
+                 (if correct-guess?
+                   {:user-score    (inc (:user-score db))
+                    :note-to-guess (theory/random-notename)
+                    :app-state     :show-result}
+                   {:user-score    0})
+                 )
       :dispatch [:fretboard/add-dot location]})))
 
 (re-frame/reg-event-db
@@ -56,3 +56,10 @@
  [check-spec-interceptor]
  (fn [db [_ new-note]]
    (assoc db :note-to-guess new-note)))
+
+(re-frame/reg-event-db
+ ::reset-game
+ [check-spec-interceptor]
+ (fn [db _]
+   (merge db {:app-state     :playing
+              :note-to-guess (theory/random-notename)})))

@@ -13,8 +13,10 @@
 
 (defn new-note-button []
   [:button {:on-click #(re-frame/dispatch
-                        [::events/set-note-to-guess (theory/random-notename)])}
-   "new note"])
+                        [::events/reset-game]
+                        ;; [::events/set-note-to-guess (theory/random-notename)]
+                        )}
+   "Play again"])
 
 (defn main-panel []
   (let [name           (re-frame/subscribe [::subs/name])
