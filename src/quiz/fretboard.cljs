@@ -13,8 +13,7 @@
                          (every? nil? dots))
                {:dots dots})
              {:parentId parent-id
-              ;; :dots dots
-              :onClickCallback
+              :onClick
               (fn [string fret]
                 (re-frame/dispatch [:fretboard/clicked
                                     {:string string :fret fret}]))}))))

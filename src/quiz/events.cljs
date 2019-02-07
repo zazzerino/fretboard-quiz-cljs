@@ -17,43 +17,42 @@
  (fn [_ _]
    db/default-db))
 
-#_(re-frame/reg-event-db
- :fretboard/add-dot
- [check-spec-interceptor]
- (fn [db [_ dot]]
-   (if (< (count (:dots db))
-          (:max-notes db))
-     (assoc db
-            :dots (conj (:dots db) dot)
-            :user-guess (theory/note-at dot))
-     db)))
-
 (re-frame/reg-event-db
  :fretboard/add-dot
  [check-spec-interceptor]
  (fn [db [_ location]]
    (assoc db :clicked-location location)))
 
-#_(re-frame/reg-event-db
- :fretboard/remove-dot
- [check-spec-interceptor]
- (fn [db [_ dot]]
-   (assoc db :dots (set (remove (partial = dot) (:dots db))))))
+;; (re-frame/reg-event-db
+;;  :fretboard/remove-dot
+;;  [check-spec-interceptor]
+;;  (fn [db [_ dot]]
+;;    (assoc db :dots (set (remove (partial = dot) (:dots db))))))
+
+;; (re-frame/reg-event-fx
+;;  :fretboard/clicked
+;;  [check-spec-interceptor]
+;;  (fn [{:keys [db]} [_ location]]
+;;    {:dispatch (condp (:app-state db) =
+;;                 :playing [::check-guess location])}))
 
 (re-frame/reg-event-fx
  :fretboard/clicked
  [check-spec-interceptor]
  (fn [{:keys [db]} [_ location]]
-   {:dispatch [:fretboard/add-dot location]}))
+   (let [correct-guess? (theory/note= (:note-to-guess db)
+                                      (theory/note-at location))]
+     {:db (assoc db
+                 :user-score (if correct-guess?
+                               (inc (:user-score db))
+                               (dec (:user-score db)))
+                 :note-to-guess (if correct-guess?
+                                  (theory/random-notename)
+                                  (:note-to-guess db)))
+      :dispatch [:fretboard/add-dot location]})))
 
 (re-frame/reg-event-db
  ::set-note-to-guess
  [check-spec-interceptor]
  (fn [db [_ new-note]]
    (assoc db :note-to-guess new-note)))
-
-(re-frame/reg-event-db
- ::user-guessed
- [check-spec-interceptor]
- (fn [db [_ guess]]
-   (assoc db :user-guess guess)))

@@ -12,7 +12,7 @@
 (def max-octave 6)
 
 (def white-keys #{"A" "B" "C" "D" "E" "F" "G"})
-(def accidentals #{"bb" "b" "" "#" "##"})
+(def accidentals #{"bb" "b" "#" "##"})
 
 (s/def ::string (s/int-in 1 (inc max-strings)))
 (s/def ::fret (s/int-in 0 (inc max-frets)))
@@ -26,7 +26,7 @@
 
 (s/def ::notename #(re-matches note-regex %))
 
-(s/def ::tuning (s/coll-of string?))
+(s/def ::tuning (s/coll-of ::notename))
 
 (defn notename [note]
   (str (:white-key note) (:accidental note) (:octave note)))
@@ -85,7 +85,11 @@
                               (= fret   (:fret %)))
                         (fretboard-notes {:keys [tuning fret-count]})))))
 
-;; (defn midi-num [note]
-;;   (+ (white-key-offset (:white-key note))
-;;      (accidental-offset (:accidental note))
-;;      (* 12 (inc (:octave note)))))
+(defn midi-num [notename]
+  (let [note (parse-notename notename)]
+    (+ (white-key-offset (:white-key note))
+       (accidental-offset (:accidental note))
+       (* 12 (inc (:octave note))))))
+
+(defn note= [& notenames]
+  (apply = (map midi-num notenames)))

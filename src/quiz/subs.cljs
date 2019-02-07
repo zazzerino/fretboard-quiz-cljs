@@ -20,5 +20,16 @@
 (re-frame/reg-sub
  ::correct-guess?
  (fn [db]
-   (= (:note-to-guess db)
-      (theory/note-at (:clicked-location db)))))
+   (if-let [location (:clicked-location db)]
+     (theory/note= (:note-to-guess db)
+                   (theory/note-at location)))))
+
+(re-frame/reg-sub
+ ::user-score
+ (fn [db]
+   (:user-score db)))
+
+(re-frame/reg-sub
+ ::app-state
+ (fn [db]
+   (:app-state db)))
