@@ -33,3 +33,12 @@
  ::app-state
  (fn [db]
    (:app-state db)))
+
+(re-frame/reg-sub
+ ::highlight-frets?
+ (fn [_ _]
+   (re-frame/subscribe [::app-state]))
+ (fn [state _]
+   (case state
+     :playing     true
+     :show-result false)))

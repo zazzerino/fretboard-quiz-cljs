@@ -5,7 +5,7 @@
             [quiz.subs :as subs]
             [quiz.utils :as utils]))
 
-(defn make-fretboard-diagram [parent-id dots]
+(defn make-fretboard-diagram [parent-id dots highlight?]
   (utils/remove-children (.getElementById js/document parent-id))
   (fd/FretboardDiagram.
    (clj->js (merge
@@ -13,6 +13,7 @@
                          (every? nil? dots))
                {:dots dots})
              {:parentId parent-id
+              :highlightOnHover highlight?
               :onClick
               (fn [string fret]
                 (re-frame/dispatch [:fretboard/clicked
@@ -21,8 +22,11 @@
 (defn fretboard-inner []
   (let [id "fd-node"
         draw (fn [this]
-               (make-fretboard-diagram id (:clicked-location
-                                           (reagent/props this))))]
+               (make-fretboard-diagram id
+                                       (:clicked-location
+                                        (reagent/props this))
+                                       (:highlight-frets?
+                                        (reagent/props this))))]
     (reagent/create-class
      {:display-name "fretboard-inner"
       :reagent-render (fn [] [:div {:id id}])
@@ -30,7 +34,9 @@
       :component-did-update draw})))
 
 (defn fretboard-outer []
-  (let [clicked-location (re-frame/subscribe [::subs/clicked-location])]
+  (let [clicked-location (re-frame/subscribe [::subs/clicked-location])
+        highlight-frets? (re-frame/subscribe [::subs/highlight-frets?])]
     (fn []
       [:div {:class "fretboard-outer"}
-       [fretboard-inner {:clicked-location [@clicked-location]}]])))
+       [fretboard-inner {:clicked-location [@clicked-location]
+                         :highlight-frets? @highlight-frets?}]])))

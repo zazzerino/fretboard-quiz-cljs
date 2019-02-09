@@ -11,11 +11,8 @@
     [:div
      [:p "Score: " @user-score]]))
 
-(defn new-note-button []
-  [:button {:on-click #(re-frame/dispatch
-                        [::events/reset-game]
-                        ;; [::events/set-note-to-guess (theory/random-notename)]
-                        )}
+(defn reset-button []
+  [:button {:on-click #(re-frame/dispatch [::events/reset-game])}
    "Play again"])
 
 (defn main-panel []
@@ -24,10 +21,13 @@
         correct-guess? (re-frame/subscribe [::subs/correct-guess?])]
     [:div.main-panel
      (condp = @app-state
-       :playing [:div
-                 [stave/stave-outer]
-                 [fretboard/fretboard-outer]
-                 [user-score-display]]
+       :playing     [:div
+                     [stave/stave-outer]
+                     [fretboard/fretboard-outer]
+                     [user-score-display]]
        :show-result [:div
+                     [stave/stave-outer]
+                     [fretboard/fretboard-outer]
+                     [:p "You got it!"]
                      [user-score-display]
-                     [new-note-button]])]))
+                     [reset-button]])]))

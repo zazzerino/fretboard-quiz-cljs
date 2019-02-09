@@ -29,37 +29,38 @@
 ;;  (fn [db [_ dot]]
 ;;    (assoc db :dots (set (remove (partial = dot) (:dots db))))))
 
-;; (re-frame/reg-event-fx
-;;  :fretboard/clicked
-;;  [check-spec-interceptor]
-;;  (fn [{:keys [db]} [_ location]]
-;;    {:dispatch (condp (:app-state db) =
-;;                 :playing [::check-guess location])}))
+(re-frame/reg-event-db
+ ::correct-guess
+ [check-spec-interceptor]
+ (fn [db [_ location]]
+   (assoc db
+          :clicked-location location
+          :user-score (inc (:user-score db))
+          :app-state :show-result)))
+
+(re-frame/reg-event-db
+ ::incorrect-guess
+ [check-spec-interceptor]
+ (fn [db [_ location]]
+   (assoc db
+          :clicked-location location
+          :user-score 0)))
 
 (re-frame/reg-event-fx
  :fretboard/clicked
  [check-spec-interceptor]
  (fn [{:keys [db]} [_ location]]
-   (let [correct-guess? (theory/note= (:note-to-guess db)
-                                      (theory/note-at location))]
-     {:db (merge db
-                 (if correct-guess?
-                   {:user-score    (inc (:user-score db))
-                    :note-to-guess (theory/random-notename)
-                    :app-state     :show-result}
-                   {:user-score    0})
-                 )
-      :dispatch [:fretboard/add-dot location]})))
-
-(re-frame/reg-event-db
- ::set-note-to-guess
- [check-spec-interceptor]
- (fn [db [_ new-note]]
-   (assoc db :note-to-guess new-note)))
+   (condp = (:app-state db)
+     :playing (if (theory/note= (:note-to-guess db)
+                                (theory/note-at location))
+                {:dispatch [::correct-guess location]}
+                {:dispatch [::incorrect-guess location]})
+     :show-result nil)))
 
 (re-frame/reg-event-db
  ::reset-game
  [check-spec-interceptor]
  (fn [db _]
-   (merge db {:app-state     :playing
-              :note-to-guess (theory/random-notename)})))
+   (merge db {:app-state        :playing
+              :clicked-location {:string 5 :fret 3}
+              :note-to-guess    (theory/random-note-in-range "E3" "G#5")})))

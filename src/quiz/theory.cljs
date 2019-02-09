@@ -11,7 +11,7 @@
 (def min-octave 3)
 (def max-octave 6)
 
-(def white-keys #{"A" "B" "C" "D" "E" "F" "G"})
+(def white-keys  #{"A" "B" "C" "D" "E" "F" "G"})
 (def accidentals #{"bb" "b" "#" "##"})
 
 (s/def ::string (s/int-in 1 (inc max-strings)))
@@ -21,24 +21,18 @@
 (s/def ::white-key white-keys)
 (s/def ::octave (s/int-in min-octave max-octave))
 (s/def ::accidental accidentals)
-(s/def ::note (s/keys :req-un [::white-key ::octave]
-                      :opt-un [::accidental]))
+(s/def ::note-map (s/keys :req-un [::white-key ::octave]
+                          :opt-un [::accidental]))
 
-(s/def ::notename #(re-matches note-regex %))
+(s/def ::note #(re-matches note-regex %))
 
 (s/def ::tuning (s/coll-of ::notename))
 
-(defn notename [note]
-  (str (:white-key note) (:accidental note) (:octave note)))
+(defn notename [note-map]
+  (str (:white-key note-map) (:accidental note-map) (:octave note-map)))
 
-(defn random-note []
-  (gen/generate (s/gen ::note)))
-
-(defn random-notename []
-  (notename (random-note)))
-
-(defn random-fretboard-location []
-  (gen/generate (s/gen ::fretboard-location)))
+(def white-key-offset  {"C" 0 "D" 2 "E" 4 "F" 5 "G" 7 "A" 9 "B" 11})
+(def accidental-offset {"bb" -2 "b" -1 "" 0 "#" 1 "##" 2})
 
 (defn parse-notename [notename]
   (if-let [[_ white-key accidental octave] (re-matches note-regex notename)]
@@ -46,10 +40,30 @@
      :accidental accidental
      :octave (js/parseInt octave)}))
 
-(def standard-tuning ["E3" "A3" "D4" "G4" "B4" "E5"])
+(defn midi-num [notename]
+  (let [note (parse-notename notename)]
+    (+ (white-key-offset (:white-key note))
+       (accidental-offset (:accidental note))
+       (* 12 (inc (:octave note))))))
 
-(def white-key-offset  {"C" 0 "D" 2 "E" 4 "F" 5 "G" 7 "A" 9 "B" 11})
-(def accidental-offset {"bb" -2 "b" -1 "" 0 "#" 1 "##" 2})
+(defn random-note-map []
+  (gen/generate (s/gen ::note-map)))
+
+(defn random-note []
+  (notename (random-note-map)))
+
+(defn random-note-in-range [lowest-note highest-note]
+  (loop [note (random-note)]
+    (let [midi (midi-num note)]
+      (if (and (>= midi (midi-num lowest-note))
+               (<= midi (midi-num highest-note)))
+        note
+        (recur (random-note))))))
+
+(defn random-fretboard-location []
+  (gen/generate (s/gen ::fretboard-location)))
+
+(def standard-tuning ["E3" "A3" "D4" "G4" "B4" "E5"])
 
 (def chromatic-sharps ["C" "C#" "D" "D#" "E" "F" "F#" "G" "G#" "A" "A#" "B"])
 (def chromatic-flats  ["C" "Db" "D" "Eb" "E" "F" "Gb" "G" "Ab" "A" "Bb" "B"])
@@ -84,12 +98,6 @@
   (:note (first (filter #(and (= string (:string %))
                               (= fret   (:fret %)))
                         (fretboard-notes {:keys [tuning fret-count]})))))
-
-(defn midi-num [notename]
-  (let [note (parse-notename notename)]
-    (+ (white-key-offset (:white-key note))
-       (accidental-offset (:accidental note))
-       (* 12 (inc (:octave note))))))
 
 (defn note= [& notenames]
   (apply = (map midi-num notenames)))
